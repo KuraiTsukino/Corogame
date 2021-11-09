@@ -19,6 +19,7 @@ let intervalId;
 
 // Clases del juego con propiedades y métodos.
 
+//prueba
 class Board {
     constructor() {
         this.x = 0; 
