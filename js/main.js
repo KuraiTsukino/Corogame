@@ -1,13 +1,11 @@
-// Elementos del DOM.
-
 window.onload = () => {
     document.getElementsByClassName('start').onclick = () => {
         startGame();
     }
-}
 
-const $canvas = document.querySelector("canvas");
-const $button = document.querySelector("button");
+
+const $canvas = document.querySelector("#canvas");
+const $button = document.querySelector(".button");
 const ctx = $canvas.getContext("2d");
 
 // Variables globales.
@@ -18,8 +16,6 @@ const friction = 0.7;
 let intervalId;
 
 // Clases del juego con propiedades y métodos.
-
-//prueba
 class Board {
     constructor() {
         this.x = 0; 
@@ -27,7 +23,7 @@ class Board {
         this.width = $canvas.width;
         this.height = $canvas.height;
         this.image = new Image();
-        this.image.src = "./../images/Background.jpg"
+        this.image.src = "images/Background.jpg"
     }
 
     draw () {
@@ -46,7 +42,7 @@ class Character {
         this.width = 170;
         this.height = 170;
         this.image = new Image ();
-        this.image.src = "./../images/coronavirus.png"
+        this.image.src = "images/coronavirus.png"
         this.move = 10;
         // caída
         this.vy = 0;
@@ -106,28 +102,28 @@ class Character {
 
     // método para el toque con los obstáculos.
 
-    isTouching(enemy) {
+    isTouchingEnemy(enemy) {
         return (
             this.x+20 < enemy.x + enemy.width-7 &&
-			this.x + this.width-20 > enemy.x-7 &&
-			this.y-20 < enemy.y + enemy.height-7 &&
-			this.y + this.height-20 > enemy.y-7
+            this.x + this.width-20 > enemy.x-7 &&
+            this.y-20 < enemy.y + enemy.height-7 &&
+            this.y + this.height-20 > enemy.y-7
         );
     }
     isTouching(friend) {
         return (
             this.x+20 < friend.x + friend.width-7 &&
-			this.x + this.width-20 > friend.x-7 &&
-			this.y-20 < friend.y + friend.height-7 &&
-			this.y + this.height-20 > friend.y-7
+            this.x + this.width-20 > friend.x-7 &&
+            this.y-20 < friend.y + friend.height-7 &&
+            this.y + this.height-20 > friend.y-7
         );
     }
     isTouching(vaccine) {
         return (
             this.x < vaccine.x + vaccine.width &&
-			this.x + this.width > vaccine.x &&
-			this.y < vaccine.y + vaccine.height &&
-			this.y + this.height > vaccine.y
+            this.x + this.width > vaccine.x &&
+            this.y < vaccine.y + vaccine.height &&
+            this.y + this.height > vaccine.y
         );
     }
 }
@@ -136,7 +132,7 @@ class Enemy extends Character {
     constructor(x, y) {
         super(x, y);
         this.image = new Image ();
-        this.image.src = "./../images/enemy.png"
+        this.image.src = "images/enemy.png"
         this.height = 60
         this.width = 60
     }
@@ -151,7 +147,7 @@ class Friend extends Character {
     constructor(x, y) {
         super(x, y);
         this.image = new Image ();
-        this.image.src = "./../images/friend.png"
+        this.image.src = "images/friend.png"
         this.height = 60
         this.width = 60
     }
@@ -166,7 +162,7 @@ class Vaccine extends Character {
     constructor(x, y) {
         super(x, y);
         this.image = new Image ();
-        this.image.src = "./../images/vaccine.png"
+        this.image.src = "images/vaccine.png"
         this.height = 80
         this.width = 80
     }
@@ -176,32 +172,8 @@ class Vaccine extends Character {
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);       
     }
 }
-/*
-class Bullet {
-    constructor(x, y) {
 
-    }
-}*/
-
-class Score {
-    constructor() {
-        this.x = $canvas.width / 2
-        this.y = 700
-        this.score = 0
-    };
-
-    draw () {
-        ctx.font = "40px sans-serif";
-        ctx.fillText (this.score, $canvas.width / 2, 700)
-        ctx.fillText = "darkviolet"
-    }
-
-    scoreIncrement() {
-        this.score++
-    }
-}
-
-// Instancias de las clases
+// Instancias de las clases.
 
 const board = new Board();
 const coro = new Character (30, 0, 60);
@@ -209,10 +181,6 @@ const allEnemies = [];
 const allFriends = [];
 const allVaccines = [];
 const keys = {};
-let score = new Score
-/*const bullets = [];
-let isGameOver = false;
-;*/
 
 // Funciones del flujo del juego.
 
@@ -222,15 +190,8 @@ function startGame() {
         update();
     }, 1000 / 60);
 }
-/*
-function gameOver() {
-    if (isGameOver) {
-        ctx.font = "40px sans-serif";
-        ctx.fillText("Game Over", $canvas.width / 3, $canvas.height / 2);
-    }
-}
-*/
-// Funciones de apoyo
+
+// Funciones de apoyo.
 
 function clearCanvas() {
     ctx.clearRect(0, 0, $canvas.width, $canvas.height);
@@ -362,3 +323,4 @@ function update() {
 }
 
 $button.onclick = startGame;
+}
