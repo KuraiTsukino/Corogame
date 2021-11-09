@@ -27,7 +27,7 @@ class Board {
         this.width = $canvas.width;
         this.height = $canvas.height;
         this.image = new Image();
-        this.image.src = "./../images/background.png"
+        this.image.src = "./../images/Background.jpg"
     }
 
     draw () {
@@ -46,7 +46,7 @@ class Character {
         this.width = 170;
         this.height = 170;
         this.image = new Image ();
-        this.image.src = "./../images/coroface-removebg-preview.png"
+        this.image.src = "./../images/coronavirus.png"
         this.move = 10;
         // caída
         this.vy = 0;
@@ -136,7 +136,7 @@ class Enemy extends Character {
     constructor(x, y) {
         super(x, y);
         this.image = new Image ();
-        this.image.src = "./../images/enemyface-removebg-preview.png"
+        this.image.src = "./../images/enemy.png"
         this.height = 60
         this.width = 60
     }
@@ -151,7 +151,7 @@ class Friend extends Character {
     constructor(x, y) {
         super(x, y);
         this.image = new Image ();
-        this.image.src = "./../images/happyface.png"
+        this.image.src = "./../images/friend.png"
         this.height = 60
         this.width = 60
     }
