@@ -1,8 +1,7 @@
 window.onload = () => {
     document.getElementsByClassName('start').onclick = () => {
-        startGame();
+        startGame(); 
     }
-
 
 const $canvas = document.querySelector("#canvas");
 const $button = document.querySelector(".button");
@@ -104,26 +103,26 @@ class Character {
 
     isTouchingEnemy(enemy) {
         return (
-            this.x+20 < enemy.x + enemy.width-7 &&
-            this.x + this.width-20 > enemy.x-7 &&
-            this.y-20 < enemy.y + enemy.height-7 &&
-            this.y + this.height-20 > enemy.y-7
+            this.x+25 < enemy.x + enemy.width-7 &&
+            this.x + this.width-25 > enemy.x-7 &&
+            this.y+25 < enemy.y + enemy.height-7 &&
+            this.y + this.height-25 > enemy.y-7
         );
     }
-    isTouching(friend) {
+    isTouchingFriend(friend) {
         return (
-            this.x+20 < friend.x + friend.width-7 &&
+            this.x+25 < friend.x + friend.width-7 &&
             this.x + this.width-20 > friend.x-7 &&
-            this.y-20 < friend.y + friend.height-7 &&
+            this.y+25 < friend.y + friend.height-7 &&
             this.y + this.height-20 > friend.y-7
         );
     }
-    isTouching(vaccine) {
+    isTouchingVaccine(vaccine) {
         return (
-            this.x < vaccine.x + vaccine.width &&
-            this.x + this.width > vaccine.x &&
-            this.y < vaccine.y + vaccine.height &&
-            this.y + this.height > vaccine.y
+            this.x+30 < vaccine.x + vaccine.width &&
+            this.x + this.width-30 > vaccine.x &&
+            this.y+30 < vaccine.y + vaccine.height &&
+            this.y + this.height-30 > vaccine.y
         );
     }
 }
@@ -173,6 +172,70 @@ class Vaccine extends Character {
     }
 }
 
+class Bullet {
+    constructor(x, y) {
+        this.x = coro.x+98;
+        this.y = coro.y+95;
+        this.width = 10;
+        this.height = 10;
+        this.color = "yellow"
+        /*this.image = new Image();
+        this.image.src = "images/gota.png"
+        this.width = 20; 
+        this.height = 20;*/
+    }
+
+    draw() {
+        this.x++;
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        //ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+    }
+
+    isTouchEnemy(enemy) {
+        return (
+            this.x < enemy.x + enemy.width-7 &&
+            this.x + this.width > enemy.x-7 &&
+            this.y < enemy.y + enemy.height-7 &&
+            this.y + this.height > enemy.y-7
+        );
+    }
+    isTouchFriend(friend) {
+        return (
+            this.x < friend.x + friend.width-7 &&
+            this.x + this.width > friend.x-7 &&
+            this.y < friend.y + friend.height-7 &&
+            this.y + this.height > friend.y-7
+        );
+    }
+    isTouchVaccine(vaccine) {
+        return (
+            this.x < vaccine.x + vaccine.width &&
+            this.x + this.width > vaccine.x &&
+            this.y < vaccine.y + vaccine.height &&
+            this.y + this.height > vaccine.y
+        );
+    }
+}
+
+class Score {
+    constructor() {
+        this.x = $canvas.width-100
+        this.y = 20;
+        this.score = 0
+    };
+
+    draw () {
+        ctx.font = "40px sans-serif";
+        ctx.strokeText(this.score, $canvas.width -100, 100)
+        ctx.fillText = "darkviolet"
+    }
+
+    scoreIncrement() {
+        this.score++
+    }
+}
+
 // Instancias de las clases.
 
 const board = new Board();
@@ -180,7 +243,10 @@ const coro = new Character (30, 0, 60);
 const allEnemies = [];
 const allFriends = [];
 const allVaccines = [];
+const bullets = [];
 const keys = {};
+let score = new Score;
+let isGameOver = false;
 
 // Funciones del flujo del juego.
 
@@ -253,25 +319,33 @@ function drawVaccine() {
 
 function checkCollitions() {
     allEnemies.forEach((enemy) => {
-        if (coro.isTouching(enemy)) {
+        if (coro.isTouchingEnemy(enemy)) {
             clearInterval(intervalId);
             isGameOver = true;
         }
     });
     allFriends.forEach((friend) => {
-        if (coro.isTouching(friend)) {
+        if (coro.isTouchingFriend(friend)) {
             clearInterval(intervalId);
             isGameOver = true;
         }
     });
     allVaccines.forEach((vaccine) => {
-        if (coro.isTouching(vaccine)) {
+        if (coro.isTouchingVaccine(vaccine)) {
             clearInterval(intervalId);
             isGameOver = true;
         }
     });
 }
-/*
+
+function printBullets() {
+    bullets.forEach(bullet => bullet.draw())
+    bullets.forEach((bullet, index) => {
+        if (bullet.x + bullet.width > $canvas.width) bullets.splice(1, index);
+    });
+    
+}
+
 function drawScore() {
     allEnemies.forEach((enemy) => {
         if(enemy.y + enemy.height > coro.y + coro.height) {
@@ -280,7 +354,15 @@ function drawScore() {
     })
     score.draw()
 }
-*/
+
+function gameOver() {
+    if (isGameOver) {
+        ctx.font = "50px sans-serif";
+        ctx.fillStyle = "white";
+        ctx.strokeText("Game Over", $canvas.width / 3, $canvas.height / 2);
+    }
+}
+
 // Funciones de interacción con el usuario.
 
 function checkKeys() {
@@ -288,10 +370,10 @@ function checkKeys() {
     if (keys.ArrowRigth) coro.moveRight();
     if (keys.ArrowUp) coro.jump();
     if (keys.ArrowDown) coro.moveDown();
-    /* if (keys.z) {
-       const bullet = new Bullet (coro.x + 15, coro.y);
-       bullet.shootSound();
-       bullets.push*/
+    if (keys.z) {
+       const bullet = new Bullet (coro.x+98, coro.y+95);
+       //bullet.shootSound();
+       bullets.push(bullet);}
 }
 
 document.onkeydown = (event) => {
@@ -307,6 +389,7 @@ document.onkeyup = (event) => {
 
 function update() {
     frames++;
+    startGame();
     checkKeys();
     generateEnemies();
     generateFriends();
@@ -317,10 +400,12 @@ function update() {
     drawEnemy();
     drawFriend();
     drawVaccine();
+    printBullets()
     checkCollitions();
-    //gameOver();
-    //drawScore();
+    drawScore();
+    gameOver();
 }
 
-$button.onclick = startGame;
+$button.onclick = startGame; 
+
 }
