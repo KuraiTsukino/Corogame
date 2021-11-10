@@ -95,6 +95,7 @@ class Character {
     moveUp() {
         this.y -= this.jump; 
     }
+    
     stop() {
         this.vx = 0;
     }
@@ -125,6 +126,7 @@ class Character {
             this.y + this.height-30 > vaccine.y
         );
     }
+
 }
 
 class Enemy extends Character {
@@ -134,12 +136,21 @@ class Enemy extends Character {
         this.image.src = "images/enemy.png"
         this.height = 60
         this.width = 60
+        this.liveStatus = true;
     }
     
     draw() {
         this.x--;
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
+
+    isTouching(obj) {
+        return (
+            this.x < obj.x + obj.width &&
+            this.x + this.width > obj.x &&
+            this.y < obj.y + obj.height &&
+            this.y + this.height > obj.y);
+        }
 }
 
 class Friend extends Character {
@@ -149,12 +160,21 @@ class Friend extends Character {
         this.image.src = "images/friend.png"
         this.height = 60
         this.width = 60
+        this.liveStatus = true;
     }
     
     draw() {
         this.x--; 
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);       
     }
+
+    isTouching(obj) {
+        return (
+            this.x < obj.x + obj.width &&
+            this.x + this.width > obj.x &&
+            this.y < obj.y + obj.height &&
+            this.y + this.height > obj.y);
+        }
 }
 
 class Vaccine extends Character {
@@ -164,12 +184,21 @@ class Vaccine extends Character {
         this.image.src = "images/vaccine.png"
         this.height = 80
         this.width = 80
+        this.liveStatus = true;
     }
     
     draw() {
         this.x--; 
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);       
     }
+
+    isTouching(obj) {
+        return (
+            this.x < obj.x + obj.width &&
+            this.x + this.width > obj.x &&
+            this.y < obj.y + obj.height &&
+            this.y + this.height > obj.y);
+        }
 }
 
 class Bullet {
@@ -191,7 +220,7 @@ class Bullet {
         ctx.fillRect(this.x, this.y, this.width, this.height);
         //ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
-
+    
     isTouchEnemy(enemy) {
         return (
             this.x < enemy.x + enemy.width-7 &&
@@ -216,6 +245,8 @@ class Bullet {
             this.y + this.height > vaccine.y
         );
     }
+
+    /* bulletGoOut()*/
 }
 
 class Score {
@@ -228,12 +259,16 @@ class Score {
     draw () {
         ctx.font = "40px sans-serif";
         ctx.strokeText(this.score, $canvas.width -100, 100)
-        ctx.fillText = "darkviolet"
+        ctx.fillText = "white";
     }
 
     scoreIncrement() {
-        this.score++
+        if (bullets.isTouchingEnemy) {this.score++}
+        if (bullets.isTouchingVaccine) {this.score++}
+        if (bullets.isTouchingFriend) {this.score--}
     }
+
+    //diedEnemies.length + diedVaccines.length - diedFriends.length;
 }
 
 // Instancias de las clases.
@@ -247,6 +282,9 @@ const bullets = [];
 const keys = {};
 let score = new Score;
 let isGameOver = false;
+let diedEnemies = [];
+let diedFriends = [];
+let diedVaccines = [];
 
 // Funciones del flujo del juego.
 
@@ -286,7 +324,7 @@ function generateFriends() {
         const y = Math.floor(Math.random() * 380);
         const friend = new Friend (900, y);
             allFriends.push(friend);
-            // para limpiar el array de los enemigos.
+            // para limpiar el array de los amigos.
             allFriends.forEach((friend, index) => {
                 if (friend.x + friend.width < 0) allFriends.splice(1, index);
             });
@@ -304,7 +342,7 @@ function generateVaccine() {
         const y = Math.floor(Math.random() * 380);
         const vaccine = new Vaccine (900, y);
             allVaccines.push(vaccine);
-            // para limpiar el array de los enemigos.
+            // para limpiar el array de las vacunas.
             allVaccines.forEach((vaccine, index) => {
                 if (vaccine.x + vaccine.width < 0) allVaccines.splice(1, index);
             });
@@ -339,15 +377,73 @@ function checkCollitions() {
 }
 
 function printBullets() {
-    bullets.forEach(bullet => bullet.draw())
-    bullets.forEach((bullet, index) => {
-        if (bullet.x + bullet.width > $canvas.width) bullets.splice(1, index);
+    bullets.forEach(bullets => bullets.draw())
+
+    // Para desaparecer las balas del arreglo.
+/*
+    bullets.forEach((bullets, index) => {
+        if (bullets.x + bullets.width > $canvas.width) {
+            bullets.splice(1, index);
+        }
     });
-    
+*/
+    // Matar enemigos.
+
+    bullets.forEach ((bullet) => {
+        allEnemies.forEach((enemy) => {
+            if (enemy.isTouching(bullet)) {
+                allEnemies.splice(enemy) && bullets.splice(bullet);
+            }
+        });
+    });
+
+    // Matar amigos.
+
+    bullets.forEach ((bullet) => {
+        allFriends.forEach((friend) => {
+            if (friend.isTouching(bullet)) {
+                allFriends.splice(friend) && bullets.splice(bullet);
+            }
+        });
+    });
+
+    // Matar vacunas.
+
+    bullets.forEach ((bullet) => {
+        allVaccines.forEach((vaccine) => {
+            if (vaccine.isTouching(bullet)) {
+                allVaccines.splice(vaccine) && bullets.splice(bullet);
+            }
+        });
+    });
+}
+
+function dieEnemy() {
+    allEnemies.forEach((enemy, index) => {
+        if (enemy.liveStatus === false) {
+            allEnemies.splice (index,1);
+        }
+    });
+}
+
+function dieFriend() {
+    allFriends.forEach((friend, index) => {
+        if (friend.liveStatus === false) {
+            allFriends.splice (index,1);
+        }
+    });
+}
+
+function dieVaccine() {
+    allVaccines.forEach((vaccine, index) => {
+        if (vaccine.liveStatus === false) {
+            allVaccines.splice (index,1);
+        }
+    });
 }
 
 function drawScore() {
-    allEnemies.forEach((enemy) => {
+     allEnemies.forEach((enemy) => {
         if(enemy.y + enemy.height > coro.y + coro.height) {
             score.scoreIncrement ()
         }
@@ -402,6 +498,9 @@ function update() {
     drawVaccine();
     printBullets()
     checkCollitions();
+    dieEnemy();
+    dieFriend();
+    dieVaccine();
     drawScore();
     gameOver();
 }
