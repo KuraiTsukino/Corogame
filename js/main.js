@@ -95,7 +95,6 @@ class Character {
     moveUp() {
         this.y -= this.jump; 
     }
-    
     stop() {
         this.vx = 0;
     }
@@ -126,7 +125,6 @@ class Character {
             this.y + this.height-30 > vaccine.y
         );
     }
-
 }
 
 class Enemy extends Character {
@@ -205,20 +203,22 @@ class Bullet {
     constructor(x, y) {
         this.x = coro.x+98;
         this.y = coro.y+95;
-        this.width = 10;
+        /*this.width = 10;
         this.height = 10;
-        this.color = "yellow"
-        /*this.image = new Image();
+        this.color = "yellow"*/
+        this.image = new Image();
         this.image.src = "images/gota.png"
         this.width = 20; 
-        this.height = 20;*/
+        this.height = 20;
+        this.audio = new Audio();
+        this.audio.src = "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-61905/zapsplat_cartoon_laser_shoot_64776.mp3"
     }
 
     draw() {
         this.x++;
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        //ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        /*ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);*/
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
     
     isTouchEnemy(enemy) {
@@ -245,8 +245,11 @@ class Bullet {
             this.y + this.height > vaccine.y
         );
     }
-
-    /* bulletGoOut()*/
+    // sonido del bullet.
+    shootSound() {
+        this.audio.volume = 0.5;
+        this.audio.play()
+    }
 }
 
 class Score {
@@ -263,6 +266,7 @@ class Score {
     }
 
     scoreIncrement() {
+
         if (bullets.isTouchingEnemy) {this.score++}
         if (bullets.isTouchingVaccine) {this.score++}
         if (bullets.isTouchingFriend) {this.score--}
@@ -271,10 +275,28 @@ class Score {
     //diedEnemies.length + diedVaccines.length - diedFriends.length;
 }
 
+class GameOvered {
+    constructor() {
+        this.x = 0
+        this.y = 0
+        this.width = $canvas.width
+        this.height = $canvas.height
+        this.image = new Image
+        this.image.src = "images/gameOvered.png"
+        this.audio = new Audio
+        this.audio.src = "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-61905/zapsplat_multimedia_game_sound_plucked_warm_bold_short_end_complete_riff_63801.mp3"
+    }
+
+    draw () {
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
+    }
+}
+
 // Instancias de las clases.
 
 const board = new Board();
 const coro = new Character (30, 0, 60);
+const gameOvered = new GameOvered();
 const allEnemies = [];
 const allFriends = [];
 const allVaccines = [];
@@ -282,9 +304,9 @@ const bullets = [];
 const keys = {};
 let score = new Score;
 let isGameOver = false;
-let diedEnemies = [];
-let diedFriends = [];
-let diedVaccines = [];
+let deadEnemies = [];
+let deadFriends = [];
+let deadVaccines = [];
 
 // Funciones del flujo del juego.
 
@@ -392,7 +414,7 @@ function printBullets() {
     bullets.forEach ((bullet) => {
         allEnemies.forEach((enemy) => {
             if (enemy.isTouching(bullet)) {
-                allEnemies.splice(enemy) && bullets.splice(bullet);
+                allEnemies.splice(enemy) && bullets.splice(bullet) && deadEnemies.push(enemy);
             }
         });
     });
@@ -402,7 +424,7 @@ function printBullets() {
     bullets.forEach ((bullet) => {
         allFriends.forEach((friend) => {
             if (friend.isTouching(bullet)) {
-                allFriends.splice(friend) && bullets.splice(bullet);
+                allFriends.splice(friend) && bullets.splice(bullet) && deadFriends.push(friend);
             }
         });
     });
@@ -412,7 +434,7 @@ function printBullets() {
     bullets.forEach ((bullet) => {
         allVaccines.forEach((vaccine) => {
             if (vaccine.isTouching(bullet)) {
-                allVaccines.splice(vaccine) && bullets.splice(bullet);
+                allVaccines.splice(vaccine) && bullets.splice(bullet) && deadVaccines.push;
             }
         });
     });
@@ -441,21 +463,31 @@ function dieVaccine() {
         }
     });
 }
-
 function drawScore() {
-     allEnemies.forEach((enemy) => {
+    allEnemies.forEach((enemy) => {
         if(enemy.y + enemy.height > coro.y + coro.height) {
             score.scoreIncrement ()
         }
-    })
+    });
     score.draw()
 }
 
+/*
+function drawScore(deadEnemies, deadFriends, deadVaccines, finalScore, otherScore) {
+     let finalScore = deadEnemies.concat(deadVaccines).reduce((x, y) => x + y); 
+     let otherScore = finalScore.concat(deadFriends).reduce((x, y) => x - y);
+
+    score.draw() {
+        return otherScore
+    }
+}*/
+
 function gameOver() {
     if (isGameOver) {
-        ctx.font = "50px sans-serif";
+        gameOvered.draw()
+        /*ctx.font = "50px sans-serif";
         ctx.fillStyle = "white";
-        ctx.strokeText("Game Over", $canvas.width / 3, $canvas.height / 2);
+        ctx.strokeText("Game Over", $canvas.width / 3, $canvas.height / 2);*/
     }
 }
 
@@ -466,10 +498,11 @@ function checkKeys() {
     if (keys.ArrowRigth) coro.moveRight();
     if (keys.ArrowUp) coro.jump();
     if (keys.ArrowDown) coro.moveDown();
-    if (keys.z) {
+    if (keys.z && frames % 20 === 0 ) {
        const bullet = new Bullet (coro.x+98, coro.y+95);
-       //bullet.shootSound();
-       bullets.push(bullet);}
+       bullets.push(bullet);
+       bullet.shootSound();
+    }
 }
 
 document.onkeydown = (event) => {
