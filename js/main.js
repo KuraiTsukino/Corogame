@@ -404,7 +404,7 @@ function printBullets() {
     bullets.forEach ((bullet) => {
         allEnemies.forEach((enemy) => {
             if (enemy.isTouching(bullet)) {
-                allEnemies.splice(enemy) && bullets.splice(bullet) 
+                allEnemies.shift(enemy) && bullets.shift(bullet) 
                 score.score++
             }
         });
@@ -415,7 +415,7 @@ function printBullets() {
     bullets.forEach ((bullet) => {
         allFriends.forEach((friend) => {
             if (friend.isTouching(bullet)) {
-                allFriends.splice(friend) && bullets.splice(bullet) 
+                allFriends.shift(friend) && bullets.shift(bullet) 
                 score.score--
             }
         });
@@ -426,36 +426,13 @@ function printBullets() {
     bullets.forEach ((bullet) => {
         allVaccines.forEach((vaccine) => {
             if (vaccine.isTouching(bullet)) {
-                allVaccines.splice(vaccine) && bullets.splice(bullet) 
+                allVaccines.shift(vaccine) && bullets.shift(bullet) 
                 score.score++
             }
         });
     });
 }
 
-function dieEnemy() {
-    allEnemies.forEach((enemy, index) => {
-        if (enemy.liveStatus === false) {
-            allEnemies.splice (index,1);
-        }
-    });
-}
-
-function dieFriend() {
-    allFriends.forEach((friend, index) => {
-        if (friend.liveStatus === false) {
-            allFriends.splice (index,1);
-        }
-    });
-}
-
-function dieVaccine() {
-    allVaccines.forEach((vaccine, index) => {
-        if (vaccine.liveStatus === false) {
-            allVaccines.splice (index,1);
-        }
-    });
-}
 function drawScore() {
     score.draw()
 }
