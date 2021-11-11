@@ -10,7 +10,7 @@ const ctx = $canvas.getContext("2d");
 // Variables globales.
 
 let frames = 0;
-const GRAVITY = 0.98;
+const GRAVITY = 0.70;
 const friction = 0.7;
 let intervalId;
 
@@ -38,8 +38,8 @@ class Character {
     constructor(x, y) {
         this.x = x; 
         this.y = y;
-        this.width = 170;
-        this.height = 170;
+        this.width = 150;
+        this.height = 150;
         this.image = new Image ();
         this.image.src = "images/coronavirus.png"
         this.move = 10;
@@ -201,14 +201,11 @@ class Vaccine extends Character {
 
 class Bullet {
     constructor(x, y) {
-        this.x = coro.x+98;
-        this.y = coro.y+95;
-        /*this.width = 10;
-        this.height = 10;
-        this.color = "yellow"*/
+        this.x = coro.x+88;
+        this.y = coro.y+88;
         this.image = new Image();
         this.image.src = "images/gota.png"
-        this.width = 20; 
+        this.width = 25; 
         this.height = 20;
         this.audio = new Audio();
         this.audio.src = "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-61905/zapsplat_cartoon_laser_shoot_64776.mp3"
@@ -216,8 +213,6 @@ class Bullet {
 
     draw() {
         this.x++;
-        /*ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);*/
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
     
@@ -247,7 +242,7 @@ class Bullet {
     }
     // sonido del bullet.
     shootSound() {
-        this.audio.volume = 0.5;
+        this.audio.volume = 0.3;
         this.audio.play()
     }
 }
@@ -261,18 +256,9 @@ class Score {
 
     draw () {
         ctx.font = "40px sans-serif";
-        ctx.strokeText(this.score, $canvas.width -100, 100)
-        ctx.fillText = "white";
+        ctx.fillStyle = "white"
+        ctx.fillText(this.score, $canvas.width -100, 100)   
     }
-
-    scoreIncrement() {
-
-        if (bullets.isTouchingEnemy) {this.score++}
-        if (bullets.isTouchingVaccine) {this.score++}
-        if (bullets.isTouchingFriend) {this.score--}
-    }
-
-    //diedEnemies.length + diedVaccines.length - diedFriends.length;
 }
 
 class GameOvered {
@@ -290,6 +276,10 @@ class GameOvered {
     draw () {
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
     }
+    overSound () {
+        this.audio.volume = 0.3;
+        this.audio.play()
+    }
 }
 
 // Instancias de las clases.
@@ -304,9 +294,9 @@ const bullets = [];
 const keys = {};
 let score = new Score;
 let isGameOver = false;
-let deadEnemies = [];
+/*let deadEnemies = [];
 let deadFriends = [];
-let deadVaccines = [];
+let deadVaccines = [];*/
 
 // Funciones del flujo del juego.
 
@@ -324,8 +314,8 @@ function clearCanvas() {
 }
 
 function generateEnemies() {
-    if (frames % 200 === 0) {
-        const y = Math.floor(Math.random() * 380);
+    if (frames % 300 === 0) {
+        const y = Math.floor(Math.random() * 300);
         const enemy = new Enemy (900, y);
             allEnemies.push(enemy);
             // para limpiar el array de los enemigos.
@@ -342,8 +332,8 @@ function drawEnemy() {
 }
 
 function generateFriends() {
-    if (frames % 300 === 0) {
-        const y = Math.floor(Math.random() * 380);
+    if (frames % 350 === 0) {
+        const y = Math.floor(Math.random() * 300);
         const friend = new Friend (900, y);
             allFriends.push(friend);
             // para limpiar el array de los amigos.
@@ -360,8 +350,8 @@ function drawFriend() {
 }
 
 function generateVaccine() {
-    if (frames % 350 === 0) {
-        const y = Math.floor(Math.random() * 380);
+    if (frames % 400 === 0) {
+        const y = Math.floor(Math.random() * 300);
         const vaccine = new Vaccine (900, y);
             allVaccines.push(vaccine);
             // para limpiar el array de las vacunas.
@@ -414,7 +404,8 @@ function printBullets() {
     bullets.forEach ((bullet) => {
         allEnemies.forEach((enemy) => {
             if (enemy.isTouching(bullet)) {
-                allEnemies.splice(enemy) && bullets.splice(bullet) && deadEnemies.push(enemy);
+                allEnemies.splice(enemy) && bullets.splice(bullet) 
+                score.score++
             }
         });
     });
@@ -424,7 +415,8 @@ function printBullets() {
     bullets.forEach ((bullet) => {
         allFriends.forEach((friend) => {
             if (friend.isTouching(bullet)) {
-                allFriends.splice(friend) && bullets.splice(bullet) && deadFriends.push(friend);
+                allFriends.splice(friend) && bullets.splice(bullet) 
+                score.score--
             }
         });
     });
@@ -434,7 +426,8 @@ function printBullets() {
     bullets.forEach ((bullet) => {
         allVaccines.forEach((vaccine) => {
             if (vaccine.isTouching(bullet)) {
-                allVaccines.splice(vaccine) && bullets.splice(bullet) && deadVaccines.push;
+                allVaccines.splice(vaccine) && bullets.splice(bullet) 
+                score.score++
             }
         });
     });
@@ -464,30 +457,13 @@ function dieVaccine() {
     });
 }
 function drawScore() {
-    allEnemies.forEach((enemy) => {
-        if(enemy.y + enemy.height > coro.y + coro.height) {
-            score.scoreIncrement ()
-        }
-    });
     score.draw()
 }
-
-/*
-function drawScore(deadEnemies, deadFriends, deadVaccines, finalScore, otherScore) {
-     let finalScore = deadEnemies.concat(deadVaccines).reduce((x, y) => x + y); 
-     let otherScore = finalScore.concat(deadFriends).reduce((x, y) => x - y);
-
-    score.draw() {
-        return otherScore
-    }
-}*/
 
 function gameOver() {
     if (isGameOver) {
         gameOvered.draw()
-        /*ctx.font = "50px sans-serif";
-        ctx.fillStyle = "white";
-        ctx.strokeText("Game Over", $canvas.width / 3, $canvas.height / 2);*/
+        gameOvered.overSound()
     }
 }
 
@@ -498,7 +474,7 @@ function checkKeys() {
     if (keys.ArrowRigth) coro.moveRight();
     if (keys.ArrowUp) coro.jump();
     if (keys.ArrowDown) coro.moveDown();
-    if (keys.z && frames % 20 === 0 ) {
+    if (keys.z && frames % 10 === 0 ) {
        const bullet = new Bullet (coro.x+98, coro.y+95);
        bullets.push(bullet);
        bullet.shootSound();
@@ -531,9 +507,6 @@ function update() {
     drawVaccine();
     printBullets()
     checkCollitions();
-    dieEnemy();
-    dieFriend();
-    dieVaccine();
     drawScore();
     gameOver();
 }
