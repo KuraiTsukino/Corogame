@@ -268,13 +268,13 @@ class GameOvered {
         this.width = $canvas.width
         this.height = $canvas.height
         this.image = new Image
-        this.image.src = "images/gameOvered.png"
+        this.image.src = "./../images/gameOvered.jpeg"
         this.audio = new Audio
         this.audio.src = "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects-61905/zapsplat_multimedia_game_sound_plucked_warm_bold_short_end_complete_riff_63801.mp3"
     }
 
     draw () {
-        ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
     overSound () {
         this.audio.volume = 0.3;
@@ -294,9 +294,6 @@ const bullets = [];
 const keys = {};
 let score = new Score;
 let isGameOver = false;
-/*let deadEnemies = [];
-let deadFriends = [];
-let deadVaccines = [];*/
 
 // Funciones del flujo del juego.
 
@@ -391,14 +388,6 @@ function checkCollitions() {
 function printBullets() {
     bullets.forEach(bullets => bullets.draw())
 
-    // Para desaparecer las balas del arreglo.
-/*
-    bullets.forEach((bullets, index) => {
-        if (bullets.x + bullets.width > $canvas.width) {
-            bullets.splice(1, index);
-        }
-    });
-*/
     // Matar enemigos.
 
     bullets.forEach ((bullet) => {
@@ -441,6 +430,9 @@ function gameOver() {
     if (isGameOver) {
         gameOvered.draw()
         gameOvered.overSound()
+        setTimeout(function () {
+            location.reload()
+        }, 2000)
     }
 }
 
