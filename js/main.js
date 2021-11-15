@@ -430,6 +430,7 @@ function gameOver() {
     if (isGameOver) {
         gameOvered.draw()
         gameOvered.overSound()
+        // PARA RESETEAR LA PÁGINA
         setTimeout(function () {
             location.reload()
         }, 2000)
